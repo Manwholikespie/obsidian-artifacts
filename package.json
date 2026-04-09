@@ -1,5 +1,5 @@
 {
-	"name": "obsidian-artifact",
+	"name": "obsidian-artifacts",
 	"version": "0.1.0",
 	"description": "Render Claude-style React artifacts in Obsidian",
 	"main": "main.js",

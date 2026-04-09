@@ -38,10 +38,11 @@ export class ArtifactView extends ItemView {
   }
 
   getDisplayText(): string {
-    // Always "Artifact" — the sidebar tab represents the pane identity,
-    // not the specific artifact loaded into it. The current artifact's
-    // title is shown in the pane header inside the view body.
-    return "Artifact";
+    // Always "Artifacts" — the sidebar tab represents the pane identity
+    // (matching the plugin name), not the specific artifact loaded into
+    // it. The current artifact's title is shown in the pane header
+    // inside the view body.
+    return "Artifacts";
   }
 
   getIcon(): string {

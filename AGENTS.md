@@ -1,4 +1,4 @@
-# obsidian-artifact — agent notes
+# Artifacts — agent notes
 
 Obsidian community plugin that renders Claude-style React artifacts inline inside notes, with click-to-expand in a right-side pane.
 
@@ -14,7 +14,7 @@ bun run format   # biome format --write
 bun run check    # biome format + lint + organize imports, writing fixes
 ```
 
-`main.js`, `manifest.json`, `styles.css` are the release artifacts. Local install copies them to `<Vault>/.obsidian/plugins/obsidian-artifact/`.
+`main.js`, `manifest.json`, `styles.css` are the release artifacts. Local install copies them to `<Vault>/.obsidian/plugins/artifacts/` (the plugin `id`, not the repo name).
 
 ## Invariants — don't break these
 

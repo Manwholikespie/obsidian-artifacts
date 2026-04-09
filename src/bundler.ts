@@ -128,7 +128,7 @@ export function installGetter(): void {
     if (!registry?.[name]) {
       const supported = Array.from(knownModules).sort().join(", ");
       throw new Error(
-        `Module '${name}' is not available in the Artifact plugin.\n\n` +
+        `Module '${name}' is not available in the Artifacts plugin.\n\n` +
           `Supported modules: ${supported}\n\n` +
           `For other libraries, use an esm.sh URL directly: ` +
           `import foo from "https://esm.sh/foo"`

@@ -1,4 +1,4 @@
-# obsidian-artifact
+# Artifacts
 
 Render Claude-style React artifacts inline in your Obsidian notes, with click-to-expand in a right-side pane — the same way Claude Desktop handles artifacts.
 
@@ -59,7 +59,7 @@ import { Something } from "https://esm.sh/some-package";
 
 ## Installing
 
-Once published to the community catalog, install from **Settings → Community plugins → Browse → Artifact**. Until then, grab the latest release from GitHub, unzip into `<Vault>/.obsidian/plugins/obsidian-artifact/`, and enable it in community plugins.
+Once published to the community catalog, install from **Settings → Community plugins → Browse → Artifacts**. Until then, grab the latest release from GitHub, unzip into `<Vault>/.obsidian/plugins/artifacts/`, and enable it in community plugins.
 
 ## Building from source
 
@@ -68,7 +68,7 @@ bun install
 bun run build
 ```
 
-Produces `main.js`. Copy it along with `manifest.json` and `styles.css` into `<Vault>/.obsidian/plugins/obsidian-artifact/`.
+Produces `main.js`. Copy it along with `manifest.json` and `styles.css` into `<Vault>/.obsidian/plugins/artifacts/`.
 
 For iterative development: `bun run dev` watches and rebuilds, then toggle the plugin off and on in community plugins settings to pick up changes.
 

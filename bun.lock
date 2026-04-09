@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "obsidian-artifact",
+      "name": "obsidian-artifacts",
       "dependencies": {
         "@babel/standalone": "^7.24.7",
         "@radix-ui/react-dialog": "^1.1.1",
