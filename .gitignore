@@ -1,22 +1,20 @@
-# vscode
-.vscode 
-
-# Intellij
-*.iml
+# Editor / IDE
+.vscode
 .idea
+*.iml
 
-# npm
+# Dependencies
 node_modules
 
-# Don't include the compiled main.js file in the repo.
-# They should be uploaded to GitHub releases instead.
+# Build output — released via GitHub Releases, not committed
 main.js
-
-# Exclude sourcemaps
 *.map
 
-# obsidian
+# Obsidian plugin runtime data (settings written by Obsidian)
 data.json
 
-# Exclude macOS Finder (System Explorer) View States
+# OS cruft
 .DS_Store
+
+# Logs
+*.log
