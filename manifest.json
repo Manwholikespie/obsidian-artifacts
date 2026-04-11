@@ -1,11 +1,10 @@
 {
   "id": "artifacts",
   "name": "Artifacts",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "minAppVersion": "1.4.0",
   "description": "Render Claude-style React artifacts in your notes.",
   "author": "Manwholikespie",
   "authorUrl": "https://github.com/Manwholikespie",
-  "repo": "Manwholikespie/obsidian-artifacts",
   "isDesktopOnly": false
 }
