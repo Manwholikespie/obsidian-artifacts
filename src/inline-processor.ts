@@ -156,7 +156,7 @@ export function registerInlineProcessor(plugin: ArtifactPlugin): void {
 
     // Inline mode — mount the React component inside a bounded body.
     const body = block.createDiv({ cls: "artifact-body" });
-    body.style.maxHeight = `${meta.height}px`;
+    body.style.setProperty("--artifact-max-height", `${meta.height}px`);
 
     const child = new ArtifactRenderChild(block, source, body);
     ctx.addChild(child);

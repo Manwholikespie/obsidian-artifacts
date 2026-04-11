@@ -28,16 +28,12 @@ export default class ArtifactPlugin extends Plugin {
     this.registerView(VIEW_TYPE_ARTIFACT, (leaf: WorkspaceLeaf) => new ArtifactView(leaf));
 
     this.addSettingTab(new ArtifactSettingTab(this.app, this));
-
-    console.log("[artifact] plugin loaded");
   }
 
   onunload(): void {
     uninstallGetter();
     uninstallModuleRegistry();
     destroyTwind();
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_ARTIFACT);
-    console.log("[artifact] plugin unloaded");
   }
 
   async loadSettings(): Promise<void> {

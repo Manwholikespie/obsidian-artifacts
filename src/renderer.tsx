@@ -41,37 +41,18 @@ function RuntimeErrorPanel({ error, resetErrorBoundary }: FallbackProps) {
  * we don't yet have a React root, so we render plain DOM.
  */
 function renderCompileError(container: HTMLElement, err: unknown): void {
-  container.empty?.();
-  container.innerHTML = "";
-  const panel = container.createDiv
-    ? container.createDiv({ cls: "artifact-error-panel" })
-    : (() => {
-        const d = document.createElement("div");
-        d.className = "artifact-error-panel";
-        container.appendChild(d);
-        return d;
-      })();
-
-  const title = document.createElement("div");
-  title.className = "artifact-error-title";
-  title.textContent = "Artifact failed to compile";
-  panel.appendChild(title);
-
-  const msg = document.createElement("pre");
-  msg.className = "artifact-error-message";
-  msg.textContent = err instanceof Error ? err.message : String(err);
-  panel.appendChild(msg);
+  container.empty();
+  const panel = container.createDiv({ cls: "artifact-error-panel" });
+  panel.createDiv({ cls: "artifact-error-title", text: "Artifact failed to compile" });
+  panel.createEl("pre", {
+    cls: "artifact-error-message",
+    text: err instanceof Error ? err.message : String(err),
+  });
 
   if (err instanceof Error && err.stack) {
-    const details = document.createElement("details");
-    const summary = document.createElement("summary");
-    summary.textContent = "Stack trace";
-    details.appendChild(summary);
-    const stack = document.createElement("pre");
-    stack.className = "artifact-error-stack";
-    stack.textContent = err.stack;
-    details.appendChild(stack);
-    panel.appendChild(details);
+    const details = panel.createEl("details");
+    details.createEl("summary", { text: "Stack trace" });
+    details.createEl("pre", { cls: "artifact-error-stack", text: err.stack });
   }
 }
 
@@ -88,7 +69,7 @@ export async function mountArtifact(container: HTMLElement, source: string): Pro
     compiledCode = transpile(source);
   } catch (err) {
     renderCompileError(container, err);
-    return { unmount: () => (container.innerHTML = "") };
+    return { unmount: () => container.empty() };
   }
 
   let mod: Record<string, unknown>;
@@ -96,7 +77,7 @@ export async function mountArtifact(container: HTMLElement, source: string): Pro
     mod = await importModule(compiledCode);
   } catch (err) {
     renderCompileError(container, err);
-    return { unmount: () => (container.innerHTML = "") };
+    return { unmount: () => container.empty() };
   }
 
   const Component = mod.default as React.ComponentType | undefined;
@@ -109,7 +90,7 @@ export async function mountArtifact(container: HTMLElement, source: string): Pro
           "    export default function Artifact() { return <div>...</div>; }"
       )
     );
-    return { unmount: () => (container.innerHTML = "") };
+    return { unmount: () => container.empty() };
   }
 
   // Twind is installed globally at plugin load; its document-wide

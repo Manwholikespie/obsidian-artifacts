@@ -58,7 +58,7 @@
 .artifact-body {
   padding: 1em;
   overflow: auto;
-  /* max-height set inline from the processor */
+  max-height: var(--artifact-max-height, 400px);
 }
 
 /* -----------------------------------------------------------------------
