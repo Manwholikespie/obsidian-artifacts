@@ -1,6 +1,6 @@
 {
   "name": "obsidian-artifacts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Render Claude-style React artifacts in Obsidian",
   "main": "main.js",
   "type": "module",
