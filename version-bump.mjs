@@ -7,10 +7,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 // Triggered automatically by the `version` script when you run
 // `bun pm version patch|minor|major` or `npm version …`.
 
-const targetVersion = process.env.npm_package_version;
-if (!targetVersion) {
-  throw new Error("npm_package_version is not set — run via `bun pm version` / `npm version`");
-}
+// bun doesn't set npm_package_version in lifecycle scripts, so read
+// the version directly from package.json (which bun has already bumped
+// by the time the `version` script runs).
+const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+const targetVersion = process.env.npm_package_version || pkg.version;
 
 const manifest = JSON.parse(readFileSync("manifest.json", "utf8"));
 const { minAppVersion } = manifest;
