@@ -1,25 +1,41 @@
 import { readFileSync, writeFileSync } from "node:fs";
 
-// Sync manifest.json `version` with the new package.json version, and
-// append an entry to versions.json that maps the new version to the
-// current minAppVersion from manifest.json.
+// Usage: node version-bump.mjs patch|minor|major
 //
-// Triggered automatically by the `version` script when you run
-// `bun pm version patch|minor|major` or `npm version …`.
+// Bumps version in package.json, manifest.json, and versions.json.
+// Does NOT commit or tag — you do that yourself so the tag has no
+// `v` prefix (Obsidian requires bare version tags).
 
-// bun doesn't set npm_package_version in lifecycle scripts, so read
-// the version directly from package.json (which bun has already bumped
-// by the time the `version` script runs).
+const level = process.argv[2];
+if (!["patch", "minor", "major"].includes(level)) {
+  console.error("Usage: node version-bump.mjs patch|minor|major");
+  process.exit(1);
+}
+
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-const targetVersion = process.env.npm_package_version || pkg.version;
+const prev = pkg.version;
+const [major, minor, patch] = prev.split(".").map(Number);
 
+const next =
+  level === "major"
+    ? `${major + 1}.0.0`
+    : level === "minor"
+      ? `${major}.${minor + 1}.0`
+      : `${major}.${minor}.${patch + 1}`;
+
+// package.json
+pkg.version = next;
+writeFileSync("package.json", `${JSON.stringify(pkg, null, 2)}\n`);
+
+// manifest.json
 const manifest = JSON.parse(readFileSync("manifest.json", "utf8"));
 const { minAppVersion } = manifest;
-manifest.version = targetVersion;
-writeFileSync("manifest.json", `${JSON.stringify(manifest, null, "\t")}\n`);
+manifest.version = next;
+writeFileSync("manifest.json", `${JSON.stringify(manifest, null, 2)}\n`);
 
+// versions.json
 const versions = JSON.parse(readFileSync("versions.json", "utf8"));
-if (versions[targetVersion] !== minAppVersion) {
-  versions[targetVersion] = minAppVersion;
-  writeFileSync("versions.json", `${JSON.stringify(versions, null, "\t")}\n`);
-}
+versions[next] = minAppVersion;
+writeFileSync("versions.json", `${JSON.stringify(versions, null, 2)}\n`);
+
+console.log(`${prev} → ${next}`);

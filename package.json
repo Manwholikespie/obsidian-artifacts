@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "lint": "biome lint --write .",
     "format": "biome format --write .",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "bump": "node version-bump.mjs"
   },
   "keywords": [],
   "license": "MIT",

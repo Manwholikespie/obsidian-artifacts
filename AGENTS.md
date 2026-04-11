@@ -49,6 +49,11 @@ The Babel rewriter picks it up automatically — no other files change.
 
 ## Releasing
 
-1. `bun pm version patch|minor|major` — runs `version-bump.mjs` automatically, syncs `manifest.json` + `versions.json`.
-2. `git push && git push --tags`.
-3. GitHub release whose tag exactly matches `manifest.json`'s `version` (no leading `v`). Attach `main.js`, `manifest.json`, `styles.css` as individual assets.
+```sh
+bun run bump patch          # or minor, or major — bumps package.json + manifest.json + versions.json
+git add -A && git commit -m "0.X.Y"
+git tag 0.X.Y               # bare version, NO leading v — Obsidian requires this
+git push && git push --tags  # triggers the release workflow
+```
+
+The release workflow builds and creates a draft GitHub release with `main.js`, `manifest.json`, `styles.css`. Publish it from the GitHub UI.
