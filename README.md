@@ -1,8 +1,8 @@
 # Artifacts
 
-Render Claude-style React artifacts inline in your Obsidian notes, with click-to-expand in a right-side pane — the same way Claude Desktop handles artifacts.
+Render React artifacts inline in your Obsidian notes. Click to expand them in a right-side pane, like Claude Desktop.
 
-Drop a ` ```artifact ` fenced code block into any note and the plugin transpiles the JSX on the fly and mounts it with React 18. The library surface matches Claude's own artifact sandbox, so code you copy from a Claude chat pastes in and Just Works.
+Write a ` ```artifact ` fenced code block in any note and the plugin transpiles the JSX and mounts it with React 18. The same libraries Claude's artifact sandbox ships are bundled here, so code copied from a Claude chat works without changes.
 
 ````markdown
 ```artifact title="Counter" height="220"

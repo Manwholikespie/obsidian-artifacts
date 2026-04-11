@@ -1,5 +1,5 @@
 import esbuild from "esbuild";
-import process from "process";
+import process from "node:process";
 import { builtinModules } from "node:module";
 
 const banner = `/*
@@ -11,45 +11,45 @@ Plugin: obsidian-artifacts
 const prod = process.argv[2] === "production";
 
 const context = await esbuild.context({
-	banner: { js: banner },
-	entryPoints: ["src/main.ts"],
-	bundle: true,
-	external: [
-		"obsidian",
-		"electron",
-		"@codemirror/autocomplete",
-		"@codemirror/collab",
-		"@codemirror/commands",
-		"@codemirror/language",
-		"@codemirror/lint",
-		"@codemirror/search",
-		"@codemirror/state",
-		"@codemirror/view",
-		"@lezer/common",
-		"@lezer/highlight",
-		"@lezer/lr",
-		...builtinModules,
-	],
-	format: "cjs",
-	target: "es2020",
-	logLevel: "info",
-	sourcemap: prod ? false : "inline",
-	treeShaking: true,
-	outfile: "main.js",
-	minify: prod,
-	loader: {
-		".tsx": "tsx",
-		".ts": "ts",
-	},
-	jsx: "automatic",
-	define: {
-		"process.env.NODE_ENV": prod ? '"production"' : '"development"',
-	},
+  banner: { js: banner },
+  entryPoints: ["src/main.ts"],
+  bundle: true,
+  external: [
+    "obsidian",
+    "electron",
+    "@codemirror/autocomplete",
+    "@codemirror/collab",
+    "@codemirror/commands",
+    "@codemirror/language",
+    "@codemirror/lint",
+    "@codemirror/search",
+    "@codemirror/state",
+    "@codemirror/view",
+    "@lezer/common",
+    "@lezer/highlight",
+    "@lezer/lr",
+    ...builtinModules,
+  ],
+  format: "cjs",
+  target: "es2020",
+  logLevel: "info",
+  sourcemap: prod ? false : "inline",
+  treeShaking: true,
+  outfile: "main.js",
+  minify: prod,
+  loader: {
+    ".tsx": "tsx",
+    ".ts": "ts",
+  },
+  jsx: "automatic",
+  define: {
+    "process.env.NODE_ENV": prod ? '"production"' : '"development"',
+  },
 });
 
 if (prod) {
-	await context.rebuild();
-	process.exit(0);
+  await context.rebuild();
+  process.exit(0);
 } else {
-	await context.watch();
+  await context.watch();
 }

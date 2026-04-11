@@ -1,9 +1,10 @@
 {
-	"id": "artifacts",
-	"name": "Artifacts",
-	"version": "0.1.0",
-	"minAppVersion": "1.4.0",
-	"description": "Render Claude-style React artifacts inline in your notes, with click-to-expand in a right-side pane.",
-	"author": "Robert",
-	"isDesktopOnly": false
+  "id": "artifacts",
+  "name": "Artifacts",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Render Claude-style React artifacts inline in your notes, with click-to-expand in a right-side pane.",
+  "author": "Manwholikespie",
+  "authorUrl": "https://github.com/Manwholikespie",
+  "isDesktopOnly": false
 }
