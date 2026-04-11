@@ -3,8 +3,9 @@
   "name": "Artifacts",
   "version": "0.1.1",
   "minAppVersion": "1.4.0",
-  "description": "Render Claude-style React artifacts inline in your notes, with click-to-expand in a right-side pane.",
+  "description": "render Claude-style React artifacts in your notes",
   "author": "Manwholikespie",
   "authorUrl": "https://github.com/Manwholikespie",
+  "repo": "Manwholikespie/obsidian-artifacts",
   "isDesktopOnly": false
 }
