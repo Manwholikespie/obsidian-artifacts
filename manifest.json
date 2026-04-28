@@ -1,7 +1,7 @@
 {
   "id": "artifacts",
   "name": "Artifacts",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "minAppVersion": "1.4.0",
   "description": "Render Claude-style React artifacts in your notes.",
   "author": "Manwholikespie",

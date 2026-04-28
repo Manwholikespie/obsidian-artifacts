@@ -80,6 +80,7 @@ function withDefaults(meta: Partial<ArtifactMetadata>): ArtifactMetadata {
  */
 class ArtifactRenderChild extends MarkdownRenderChild {
   private handle: MountHandle | null = null;
+  private unloaded = false;
 
   constructor(
     containerEl: HTMLElement,
@@ -89,15 +90,23 @@ class ArtifactRenderChild extends MarkdownRenderChild {
     super(containerEl);
   }
 
-  async onload() {
-    try {
-      this.handle = await mountArtifact(this.mountTarget, this.source);
-    } catch (err) {
-      console.error("[artifact] mount failed", err);
-    }
+  onload(): void {
+    this.unloaded = false;
+    void mountArtifact(this.mountTarget, this.source)
+      .then((handle) => {
+        if (this.unloaded) {
+          handle.unmount();
+          return;
+        }
+        this.handle = handle;
+      })
+      .catch((err) => {
+        console.error("[artifact] mount failed", err);
+      });
   }
 
-  onunload() {
+  onunload(): void {
+    this.unloaded = true;
     this.handle?.unmount();
     this.handle = null;
   }
@@ -110,6 +119,17 @@ export function registerInlineProcessor(plugin: ArtifactPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor("artifact", (source, el, ctx) => {
     const infoString = readInfoString(el, ctx);
     const meta = withDefaults(parseInfoString(infoString));
+    const openPane = () => {
+      void plugin
+        .openInPane({
+          source,
+          metadata: meta,
+          sourcePath: ctx.sourcePath,
+        })
+        .catch((err) => {
+          console.error("[artifact] open pane failed", err);
+        });
+    };
 
     const block = el.createDiv({ cls: "artifact-block" });
     block.setAttribute("data-mode", meta.mode);
@@ -129,11 +149,7 @@ export function registerInlineProcessor(plugin: ArtifactPlugin): void {
     expandBtn.addEventListener("click", (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
-      plugin.openInPane({
-        source,
-        metadata: meta,
-        sourcePath: ctx.sourcePath,
-      });
+      openPane();
     });
 
     if (meta.mode === "preview") {
@@ -144,13 +160,7 @@ export function registerInlineProcessor(plugin: ArtifactPlugin): void {
         cls: "artifact-preview-hint",
         text: "Click to open in side pane",
       });
-      block.addEventListener("click", () => {
-        plugin.openInPane({
-          source,
-          metadata: meta,
-          sourcePath: ctx.sourcePath,
-        });
-      });
+      block.addEventListener("click", openPane);
       return;
     }
 

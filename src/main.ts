@@ -84,6 +84,6 @@ export default class ArtifactPlugin extends Plugin {
       active: true,
       state: state as unknown as Record<string, unknown>,
     });
-    workspace.revealLeaf(leaf);
+    await workspace.revealLeaf(leaf);
   }
 }

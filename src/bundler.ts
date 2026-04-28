@@ -11,18 +11,28 @@
 // inserts during the first pass.
 
 import * as Babel from "@babel/standalone";
+import type { NodePath, PluginObj } from "@babel/core";
+import type * as BabelTypes from "@babel/types";
 import { MODULES_KEY, knownModules } from "./modules";
 
-// Babel standalone exposes `packages`, `availablePresets`, and
-// `availablePlugins` at runtime but omits them from its type definitions.
-// We type through a local `any` alias rather than sprinkling casts
-// throughout the file. (noExplicitAny is disabled in biome.json for this
-// project specifically because of this Babel interop.)
-type BabelAny = any;
-const b = Babel as unknown as BabelAny;
-const t = b.packages.types;
+const t = Babel.packages.types;
 
 const GET_FN = "_artifactGet";
+
+interface ArtifactWindow extends Window {
+  [GET_FN]?: (name: string) => unknown;
+  [MODULES_KEY]?: Record<string, unknown>;
+}
+
+function getArtifactWindow(): ArtifactWindow {
+  return window as ArtifactWindow;
+}
+
+function getModuleCall(source: string): BabelTypes.CallExpression {
+  return t.callExpression(t.memberExpression(t.identifier("window"), t.identifier(GET_FN)), [
+    t.stringLiteral(source),
+  ]);
+}
 
 /**
  * Babel plugin that rewrites:
@@ -35,10 +45,10 @@ const GET_FN = "_artifactGet";
  * Relative imports (./foo) and absolute URL imports (https://…) are left
  * untouched — they pass through to the native browser module loader.
  */
-function importRewriter() {
+function importRewriter(): PluginObj {
   return {
     visitor: {
-      ImportDeclaration(path: BabelAny) {
+      ImportDeclaration(path: NodePath<BabelTypes.ImportDeclaration>) {
         const source: string = path.node.source.value;
         if (
           source.startsWith(".") ||
@@ -49,59 +59,47 @@ function importRewriter() {
           return;
         }
 
-        const specifiers: BabelAny[] = path.node.specifiers;
+        const specifiers = path.node.specifiers;
 
         // Namespace import: `import * as Foo from 'bar'`
         const nsSpec = specifiers.find((s) => t.isImportNamespaceSpecifier(s));
         if (nsSpec) {
           path.replaceWith(
             t.variableDeclaration("const", [
-              t.variableDeclarator(
-                t.identifier(nsSpec.local.name),
-                t.callExpression(t.memberExpression(t.identifier("window"), t.identifier(GET_FN)), [
-                  t.stringLiteral(source),
-                ])
-              ),
+              t.variableDeclarator(t.identifier(nsSpec.local.name), getModuleCall(source)),
             ])
           );
           return;
         }
 
         // Named + default imports: destructure out of the module object
-        const properties = specifiers
-          .map((spec: BabelAny) => {
-            if (t.isImportDefaultSpecifier(spec)) {
-              return t.objectProperty(
+        const properties = specifiers.flatMap((spec): BabelTypes.ObjectProperty[] => {
+          if (t.isImportDefaultSpecifier(spec)) {
+            return [
+              t.objectProperty(
                 t.identifier("default"),
                 t.identifier(spec.local.name),
                 false,
                 false
-              );
-            }
-            if (t.isImportSpecifier(spec)) {
-              const importedName =
-                spec.imported.type === "Identifier" ? spec.imported.name : spec.imported.value;
-              const localName = spec.local.name;
-              const shorthand = importedName === localName;
-              return t.objectProperty(
-                t.identifier(importedName),
-                t.identifier(localName),
-                false,
-                shorthand
-              );
-            }
-            return null;
-          })
-          .filter(Boolean);
+              ),
+            ];
+          }
+          if (t.isImportSpecifier(spec)) {
+            const importedKey = t.isIdentifier(spec.imported)
+              ? t.identifier(spec.imported.name)
+              : t.stringLiteral(spec.imported.value);
+            const importedName =
+              spec.imported.type === "Identifier" ? spec.imported.name : spec.imported.value;
+            const localName = spec.local.name;
+            const shorthand = t.isIdentifier(spec.imported) && importedName === localName;
+            return [t.objectProperty(importedKey, t.identifier(localName), false, shorthand)];
+          }
+          return [];
+        });
 
         path.replaceWith(
           t.variableDeclaration("const", [
-            t.variableDeclarator(
-              t.objectPattern(properties),
-              t.callExpression(t.memberExpression(t.identifier("window"), t.identifier(GET_FN)), [
-                t.stringLiteral(source),
-              ])
-            ),
+            t.variableDeclarator(t.objectPattern(properties), getModuleCall(source)),
           ])
         );
       },
@@ -121,11 +119,11 @@ function ensurePluginRegistered() {
  * Throws a readable error when a user imports something not in the registry.
  */
 export function installGetter(): void {
-  const w = window as unknown as BabelAny;
+  const w = getArtifactWindow();
   if (w[GET_FN]) return;
   w[GET_FN] = (name: string): unknown => {
     const registry = w[MODULES_KEY];
-    if (!registry?.[name]) {
+    if (!registry || !(name in registry)) {
       const supported = Array.from(knownModules).sort().join(", ");
       throw new Error(
         `Module '${name}' is not available in the Artifacts plugin.\n\n` +
@@ -139,7 +137,7 @@ export function installGetter(): void {
 }
 
 export function uninstallGetter(): void {
-  const w = window as unknown as BabelAny;
+  const w = getArtifactWindow();
   delete w[GET_FN];
 }
 
@@ -156,9 +154,9 @@ export function transpile(code: string): string {
   const pass1 = Babel.transform(code, {
     sourceType: "module",
     presets: [
-      [b.availablePresets.react, { runtime: "automatic" }],
+      [Babel.availablePresets.react, { runtime: "automatic" }],
       [
-        b.availablePresets.typescript,
+        Babel.availablePresets.typescript,
         { onlyRemoveTypeImports: true, allExtensions: true, isTSX: true },
       ],
     ],
@@ -171,7 +169,7 @@ export function transpile(code: string): string {
   // Pass 2: importRewriter only. Sees all imports including jsx-runtime.
   const pass2 = Babel.transform(pass1, {
     sourceType: "module",
-    plugins: [b.availablePlugins.artifactImportRewriter],
+    plugins: [Babel.availablePlugins.artifactImportRewriter],
   }).code;
 
   if (!pass2) {

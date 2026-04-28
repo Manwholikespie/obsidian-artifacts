@@ -5,7 +5,7 @@
 // metadata) via setState/getState so Obsidian can restore it after a
 // reload, which we want for workspace persistence.
 
-import { ItemView } from "obsidian";
+import { ItemView, type ViewStateResult } from "obsidian";
 import type { ArtifactMetadata } from "./inline-processor";
 import { type MountHandle, mountArtifact } from "./renderer";
 
@@ -67,30 +67,29 @@ export class ArtifactView extends ItemView {
     }
   }
 
-  async onClose(): Promise<void> {
+  onClose(): Promise<void> {
     this.handle?.unmount();
     this.handle = null;
     this.mountEl = null;
+    return Promise.resolve();
   }
 
   // Obsidian calls this with the persisted state on workspace restore,
   // and we call it ourselves when opening the view from the inline
   // expand button via leaf.setViewState.
-  async setState(state: unknown, result: unknown): Promise<void> {
+  async setState(state: unknown, result: ViewStateResult): Promise<void> {
     if (isArtifactViewState(state)) {
       this.state = state;
 
       // Update the pane header / tab title
-      const titleEl = this.containerEl.querySelector(".artifact-pane-title") as HTMLElement | null;
+      const titleEl = this.containerEl.querySelector(".artifact-pane-title");
       if (titleEl) titleEl.textContent = state.metadata.title;
 
       if (this.mountEl) {
         await this.remount();
       }
     }
-    // Obsidian's ItemView.setState signature takes a typed ViewStateResult,
-    // but we get it as `unknown` from the caller — cast through.
-    return super.setState(state, result as Parameters<ItemView["setState"]>[1]);
+    return super.setState(state, result);
   }
 
   getState(): Record<string, unknown> {
